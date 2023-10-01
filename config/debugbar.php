@@ -37,7 +37,7 @@ return [
      | Specify a callback if you want to limit based on IP or authentication.
      */
     'storage' => [
-        'enabled'    => true,
+        'enabled'    => false,
         'open'       => env('DEBUGBAR_OPEN_STORAGE', false), // bool/callback.
         'driver'     => 'file', // redis, file, pdo, socket, custom
         'path'       => storage_path('debugbar'), // For file driver
