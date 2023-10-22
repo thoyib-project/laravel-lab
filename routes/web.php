@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,19 @@ Route::get('/', function () {
 });
 Route::get('/staffmanager', function () {
     return view('staffmanager/index');
+});
+Route::get('/testTrait', [TestController::class, 'index']);
+
+Route::middleware('auth')->group(function (){
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/', function () {
+            return view('welcome');
+        });
+    });
+
+    Route::middleware('role:toko')->group(function () {
+        Route::get('/', function () {
+            return view('welcome');
+        });
+    });
 });
