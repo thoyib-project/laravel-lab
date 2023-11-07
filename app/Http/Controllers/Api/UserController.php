@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -37,9 +38,12 @@ class UserController extends Controller
     public function store(StoreUserRequest $req)
     {
         try {
-            $data = User::create($req->all());
-            return response()->json(["status" => 200, "data" => ($data)]);
+            DB::transaction(function () use($req) {
+                $this->resultData = User::create($req->all());
+            });
+            return response()->json(["status" => 200, "data" => ($this->resultData)]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(["status" => $th->getCode(), "data" => $th->getMessage()]);
         }
     }
@@ -71,11 +75,13 @@ class UserController extends Controller
     public function update(StoreUserRequest $req, string $id)
     {
         try {
-            // dd($user);
+            DB::beginTransaction();
             $data = User::find($id);
             $data->update($req->all());
+            DB::commit();
             return response()->json(["status" => 200, "data" => ($data)]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(["status" => $th->getCode(), "data" => $th->getMessage()]);
         }
     }
@@ -86,10 +92,12 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         try {
-            // dd('im here');
+            DB::beginTransaction();
             User::where('id',$id)->delete();
+            DB::commit();
             return response()->json(["status" => 200, "data" => "Data {$id} has been delete"]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(["status" => $th->getCode(), "data" => $th->getMessage()]);
         }
     }

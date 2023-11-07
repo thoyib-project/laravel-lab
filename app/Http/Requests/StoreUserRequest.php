@@ -33,6 +33,7 @@ class StoreUserRequest extends FormRequest
                 $rules += [
                     'email' => ['required', 'unique:users,email'],
                     'password' => ['required', 'min:10', 'confirmed'],
+                    'password_confirmation' => ['required', 'min:10']
                 ];
                 break;
             case 'update':
