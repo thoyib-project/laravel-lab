@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\API\SendMailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redis;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +18,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::post("/sendEmail", [SendMailController::class, "sendOTP"]);
+Route::post("/verificationOTP", [SendMailController::class, "verificationOTP"]);
+
+Route::get('/getRedis', function (Request $req) {
+    $name = Redis::get($req->name);
+    return "success get data : {$name}";
+});
+
+Route::post('/setRedis', function (Request $req) {
+    $name = Redis::set($req->name,$req->val,"EX",1*60);
+    return "success set data {$req->name} : {$req->val}";
 });
