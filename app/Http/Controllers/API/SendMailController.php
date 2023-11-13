@@ -41,8 +41,7 @@ class SendMailController extends Controller
             Redis::set($redisName, json_encode($dataRedis), "EX", 10*60);
             // send OTP email
             $details = [
-                'title' => 'Mail from laravellab.com',
-                'body' => "This is your OTP : {$data->OTP} for testing emailing {$data->email} using smtp"
+                'otp' => $data->OTP
             ];
             // dd($details);
             Mail::to($data->email)->send(new MyTestMail($details));
