@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MyTestMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,12 +30,22 @@ class SendMailController extends Controller
 
             // get user by id
             $data = User::where('email',$validatedaReq['email'])->first();
-
+            // dd($data);
             // set OTP on Redis
             $data->OTP = mt_rand(0000,9999);
             $redisName = $data->email."-OTP";
-            Redis::set($redisName, $data->OTP, "EX", 10*60);
+            $dataRedis = [
+                "otp" => $data->OTP,
+                "attempt" => 0
+            ];
+            Redis::set($redisName, json_encode($dataRedis), "EX", 10*60);
             // send OTP email
+            $details = [
+                'title' => 'Mail from laravellab.com',
+                'body' => "This is your OTP : {$data->OTP} for testing emailing {$data->email} using smtp"
+            ];
+            // dd($details);
+            Mail::to($data->email)->send(new MyTestMail($details));
             $response = [
                 "status" => 200,
                 "data" => $data
