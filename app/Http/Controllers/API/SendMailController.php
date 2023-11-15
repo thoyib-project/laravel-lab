@@ -33,12 +33,12 @@ class SendMailController extends Controller
             // dd($data);
             // set OTP on Redis
             $data->OTP = mt_rand(0000,9999);
-            $redisName = $data->email."-OTP";
+            $redisName = "OTP:".$data->email;
             $dataRedis = [
                 "otp" => $data->OTP,
                 "attempt" => 0
             ];
-            Redis::set($redisName, json_encode($dataRedis), "EX", 30*60);
+            Redis::setex($redisName, 5*60, json_encode($dataRedis));
             // send OTP email
             $details = [
                 'otp' => $data->OTP
@@ -73,7 +73,7 @@ class SendMailController extends Controller
             $data = User::where('email',$validatedaReq['email'])->first();
 
             // find OTP on Redis
-            $redisName = $data->email."-OTP";
+            $redisName = "OTP:".$data->email;
             $redisOTP = json_decode(Redis::get($redisName));
             $redisTTL = Redis::ttl($redisName);
             
@@ -81,7 +81,7 @@ class SendMailController extends Controller
                 "otp" => $redisOTP->otp,
                 "attempt" => $redisOTP->attempt + 1
             ];
-            Redis::set($redisName, json_encode($dataRedis), "EX", $redisTTL);
+            Redis::setex($redisName, $redisTTL, json_encode($dataRedis));
             
             // validate OTP send with OTP on Redis
             if($redisOTP->attempt >= 5){
