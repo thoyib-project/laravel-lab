@@ -39,13 +39,14 @@ class MyTestMail extends Mailable
     {
         return new Content(
             view: 'emails.myTestMail',
+            with: ['details' => $this->details],
         );
     }
 
-    public function build()
-    {
-        return $this->view('emails.myTestMail');
-    }
+    // public function build()
+    // {
+    //     return $this->view('emails.myTestMail');
+    // }
 
     /**
      * Get the attachments for the message.

@@ -38,7 +38,7 @@ class SendMailController extends Controller
                 "otp" => $data->OTP,
                 "attempt" => 0
             ];
-            Redis::set($redisName, json_encode($dataRedis), "EX", 10*60);
+            Redis::set($redisName, json_encode($dataRedis), "EX", 30*60);
             // send OTP email
             $details = [
                 'otp' => $data->OTP
@@ -68,12 +68,26 @@ class SendMailController extends Controller
                 return  response()->json($response);
             }
             $validatedaReq = $validator->validated();
+
             // get user by id
             $data = User::where('email',$validatedaReq['email'])->first();
+
             // find OTP on Redis
-            $otp = Redis::get($data->email."-OTP");
+            $redisName = $data->email."-OTP";
+            $redisOTP = json_decode(Redis::get($redisName));
+            $redisTTL = Redis::ttl($redisName);
+            
+            $dataRedis = [
+                "otp" => $redisOTP->otp,
+                "attempt" => $redisOTP->attempt + 1
+            ];
+            Redis::set($redisName, json_encode($dataRedis), "EX", $redisTTL);
+            
             // validate OTP send with OTP on Redis
-            if($otp !== $validatedaReq['otp']){
+            if($redisOTP->attempt >= 5){
+                throw new Exception("Max attempt verification OTP", 1);
+            }
+            if($redisOTP->otp !== $validatedaReq['otp']){
                 throw new Exception("OTP not match", 1);
             }
             $response = [
