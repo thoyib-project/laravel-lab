@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\Passport;  //import Passport here
+// use Laravel\Passport\Passport;  //import Passport here
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(TelescopeServiceProvider::class);
             // $this->app->register(Barryvdh\Debugbar\ServiceProvider::class);
         }
-        Passport::ignoreRoutes();
+        // Passport::ignoreRoutes();
     }
 
     /**
