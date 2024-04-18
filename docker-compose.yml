@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  laravel-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./public:/var/www/html/public
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:Mw3JUufBsqxnEqpCavn0rIJFaKJxcEJwbY5C/S+P8es=
+      # Add any additional Laravel environment variables here
+    depends_on:
+      - mysql-db
+      - redis
+
+  mysql-db:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=laravel-lab
+      - MYSQL_PASSWORD=
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    ports:
+      - "63791:6379"
+
+volumes:
+  mysql-data:
